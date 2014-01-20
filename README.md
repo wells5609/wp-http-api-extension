@@ -87,11 +87,11 @@ $yahoo = get_api_adapter( 'yahoo' );
 
 // we can call API methods as PHP methods, passing params in an array:
 
-$response = yahoo->yql( array( 'q' => 'select tables', 'format' => 'xml' ) );
+$response = $yahoo->yql( array( 'q' => 'select tables', 'format' => 'xml' ) );
 
 if ( !is_wp_error($response) ){
 
-  $simple_xml_element = $response->get_body_object(); // load body as PHP object
+  $simple_xml_element = $response->get_body_object(); // load body as PHP object (in this case, a Simple XML Element)
 
   $item = $simple_xml_element->xpath( '//response/item' );
 }
