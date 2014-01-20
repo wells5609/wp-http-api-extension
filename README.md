@@ -62,19 +62,19 @@ For example, the Yahoo adapter is registered like so:
 
 ```php
 register_api_adapter( 'yahoo', array(
-  'baseurl' => 'http://query.yahooapis.com/v1/public',  // base URI
-	 'methods' => array(
-	   'yql' => array(                                     // corresponds to "http://query.yahooapis.com/v1/public/yql"
-			   'params' => array(                                // define all possible parameters
-				    'format' => array('json','xml'),                // pass an array to restrict valid param values
-			   	 'env' => '',                                    // Empty string ('') means must pass string
-			    	'diagnostics' => 1,                             // 1 or 0 means must pass boolean
-			    	'*q' => '',                                     // Asterik (*) before parameter means required
-		    ),
-			   'method' => 'GET',                                // For completeness (GET is default)
-			   'paths' => false,                                 // False means no additional URI components allowed (e.g. '../yql/something')
-		  ),
-	 )
+  'baseurl' => 'http://query.yahooapis.com/v1/public',	// base URI
+  'methods' => array(
+	'yql' => array(                                 // corresponds to "http://query.yahooapis.com/v1/public/yql"
+		'params' => array(              		// define all possible parameters
+			'format' => array('json','xml'),        // pass an array to restrict valid param values
+			'env' => '',                            // Empty string ('') means must pass string
+			'diagnostics' => 1,                     // 1 or 0 means must pass boolean
+			'*q' => '',                             // Asterik (*) before parameter means required
+		),
+		'method' => 'GET',                              // HTTP method - for completeness (GET is default)
+		'paths' => false,                               // False means no additional URI components allowed (e.g. '../yql/something')
+	),
+  )
 ) );
 
 ```
@@ -83,11 +83,11 @@ register_api_adapter( 'yahoo', array(
 
 ```php
 
-$yahoo = api_get_adapter( 'yahoo' );
+$yahoo = get_api_adapter( 'yahoo' );
 
 // we can call API methods as PHP methods, passing params in an array:
 
-$response = $api->yql( array( 'q' => 'select tables', 'format' => 'xml' ) );
+$response = yahoo->yql( array( 'q' => 'select tables', 'format' => 'xml' ) );
 
 if ( !is_wp_error($response) ){
 
