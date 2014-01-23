@@ -6,21 +6,6 @@ Author: wells
 Version: 0.0.2-alpha
 */
 
-register_api_adapter( 'yahoo', array(
-	'baseurl' => 'http://query.yahooapis.com/v1/public',
-	'methods' => array(
-		'yql' => array(
-			'params' => array(
-				'format' => array('json','xml'),
-				'env' => '',
-				'diagnostics' => 1,
-				'*q' => '',
-			),
-			'method' => 'GET',
-		),
-	)
-) );
-
 function register_api_adapter( $name, array $args ){
 	return WP_HTTP_API_Adapter::register_adapter( $name, $args );
 }
@@ -44,17 +29,20 @@ class WP_Yahoo_API_Adapter extends WP_HTTP_API_Adapter {
 		
 }
 
-/**
-Example:
-
-$api = http_api_get_adapter( 'yahoo' );
-
-$response = $api->yql( array( 'q' => 'select tables', 'format' => 'xml' ) );
-
-$simple_xml_element = $response->get_body_object(); // load body as PHP object
-
-$item = $simple_xml_element->xpath( '//response/item' );
-*/
+register_api_adapter( 'yahoo', array(
+	'baseurl' => 'http://query.yahooapis.com/v1/public',
+	'methods' => array(
+		'yql' => array(
+			'params' => array(
+				'format' => array('json','xml'),
+				'env' => '',
+				'diagnostics' => 1,
+				'*q' => '',
+			),
+			'method' => 'GET',
+		),
+	)
+) );
 
 /**
 * class WP_HTTP_API_Adapter
@@ -148,7 +136,7 @@ class WP_HTTP_API_Adapter {
 		$this->last_request['http_method'] = $http_method;
 		$this->last_request['url'] = $url;
 		
-		return $this->request->request( $url, $http_method );
+		return $this->request->send_request( $url, $http_method );
 	}
 	
 	public function build_methods( array $methods ){

@@ -29,10 +29,22 @@ class WP_HTTP_Request {
 		$stream			= false,
 		$filename		= null;
 	
-	public function request( $url, $method = null ){
+	public function get( $url ){
 		
-		if ( !empty($method) )
-			$this->method = strtoupper($method);
+		return $this->send_request( $url, 'GET' );	
+	}
+	
+	public function post( $url ){
+		return $this->send_request( $url, 'POST' );	
+	}
+	
+	public function put( $url ){
+		return $this->send_request( $url, 'PUT' );	
+	}
+	
+	public function send_request( $url, $method = 'GET' ){
+		
+		$this->method = strtoupper($method);
 		
 		$args = array();
 		
@@ -51,12 +63,46 @@ class WP_HTTP_Request {
 			$args[ $key ] = $this->$var;
 		}
 		
+		$start_time = microtime(true);
+		
 		$response = _wp_http_get_object()->request( $url, $args );
 		
 		if ( is_wp_error($response) )
 			return $response;
 		
+		$response['_start_time'] = $start_time;
+		
 		return new WP_HTTP_Response( $response );
+	}
+	
+		
+	public function set_header( $name, $value, $replace = true ){
+		
+		if ( ! $replace && isset($this->headers[ $name ]) ){
+			return;
+		}
+		
+		$this->headers[ $name ] = $value;
+	}
+	
+	public function add_header( $name, $value ){
+		$this->set_header( $name, $value, false );	
+	}
+	
+	public function remove_header( $name, $value = '' ){
+		
+		if ( !isset($this->headers[ $name ]) )
+			return;
+		
+		if ( empty($value) || $value == $this->headers[ $name ] ){
+			unset( $this->headers[ $name ] );
+		}	
+			
+	}
+		
+	public function basic_auth( $username, $password ){
+		
+		$this->set_header( 'Authorization', 'Basic ' . base64_encode( $username . ':' . $password ) );
 	}
 	
 }

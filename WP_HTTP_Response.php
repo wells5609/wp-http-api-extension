@@ -7,7 +7,13 @@
 class WP_HTTP_Response extends ArrayObject {
 		
 	public function __construct( $response ){
+		
 		parent::__construct( $response, ArrayObject::ARRAY_AS_PROPS );
+		
+		if ( isset( $this->_start_time ) ){
+			$this->offsetSet( 'request_time', microtime(true) - $this->_start_time );	
+			unset( $this->_start_time );
+		}
 	}
 	
 	public function get_body(){
@@ -80,7 +86,7 @@ class WP_HTTP_Response extends ArrayObject {
 			return '';
 		}
 		
-		return $this->body;		
+		return (string) $this->body;		
 	}
 	
 }
