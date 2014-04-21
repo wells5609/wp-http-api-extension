@@ -7,29 +7,29 @@ Version: 0.0.2-alpha
 */
 
 function register_api_adapter( $name, array $args ){
-	return WP_HTTP_API_Adapter::register_adapter( $name, $args );
+	return WP_HTTP_API_Adapter::register_adapter($name, $args);
 }
 
 function get_api_adapter( $name ){
-	return WP_HTTP_API_Adapter::get_adapter( $name );
+	return WP_HTTP_API_Adapter::get_adapter($name);
 }
 
-add_filter( 'yahoo_api_adapter_class', create_function('', "return 'WP_Yahoo_API_Adapter';") );
+add_filter('yahoo_api_adapter_class', create_function('', "return 'WP_Yahoo_API_Adapter';"));
 
 class WP_Yahoo_API_Adapter extends WP_HTTP_API_Adapter {
 	
-	public function yql( $params = array(), $http_method = null ){
+	public function yql($params = array(), $http_method = null) {
 		
-		if ( is_string($params) ){
-			$params = array( 'q' => $params );	
+		if (is_string($params)) {
+			$params = array('q' => $params);	
 		}
 		
-		return $this->call_method( 'yql', '', $params, $http_method );
+		return $this->call_method('yql', '', $params, $http_method);
 	}
 		
 }
 
-register_api_adapter( 'yahoo', array(
+register_api_adapter('yahoo', array(
 	'baseurl' => 'http://query.yahooapis.com/v1/public',
 	'methods' => array(
 		'yql' => array(
@@ -42,7 +42,7 @@ register_api_adapter( 'yahoo', array(
 			'method' => 'GET',
 		),
 	)
-) );
+));
 
 /**
 * class WP_HTTP_API_Adapter
@@ -59,30 +59,30 @@ class WP_HTTP_API_Adapter {
 	
 	protected static $instances = array();
 	
-	static public function register_adapter( $id, array $args ){
+	static public function register_adapter($id, array $args) {
 		
-		if ( !isset( $args['baseurl'] ) )
+		if (! isset($args['baseurl']))
 			return new WP_Error('api_adapter', 'missing baseurl');
-		if ( !isset( $args['methods'] ) )
+		if (! isset( $args['methods']))
 			return new WP_Error('api_adapter', 'missing methods');
 		
-		$class = apply_filters( "{$id}_api_adapter_class", __CLASS__ );
+		$class = apply_filters("{$id}_api_adapter_class", __CLASS__);
 		
-		$a = self::$instances[ $id ] = new $class( $args['baseurl'] );
+		$a = self::$instances[ $id ] = new $class($args['baseurl']);
 		
-		$a->build_methods( $args['methods'] );
+		$a->build_methods($args['methods']);
 		
 		return $a;
 	}
 	
-	static public function get_adapter( $id ){
+	static public function get_adapter($id) {
 		
-		return isset( self::$instances[ $id ] ) ? self::$instances[ $id ] : null;	
+		return isset(self::$instances[ $id ]) ? self::$instances[ $id ] : null;	
 	}
 	
 	public function __construct( $baseurl = null ){
 		
-		if ( !empty($baseurl) ) {
+		if (! empty($baseurl)) {
 			$this->baseurl = $baseurl;	
 		}
 		
@@ -95,39 +95,39 @@ class WP_HTTP_API_Adapter {
 		$this->last_request = array();
 	}
 	
-	public function set_option( $var, $value ){
+	public function set_option($var, $value) {
 		
 		$this->request->$var = $value;	
 		
 		return $this;
 	}
 	
-	public function get_option( $var ){
+	public function get_option($var) {
 		
 		return $this->request->$var;	
 	}
 	
-	public function call_method( $method, $path = '', $params = array(), $http_method = null ){
+	public function call_method($method, $path = '', $params = array(), $http_method = null) {
 		
-		if ( !isset($this->methods[$method]) ) return false;
+		if (! isset($this->methods[$method])) return false;
 		
 		$def = $this->methods[ $method ];
 		
-		if ( !empty($http_method) && !in_array( $http_method, $def->http_methods ) ){
+		if (! empty($http_method) && ! in_array($http_method, $def->http_methods)) {
 			return new WP_Error('invalid_http_method', "HTTP method '$http_method' not allowed for method '$def->name'.");
 		}
 		
-		$method_string = $def->build_url( $path, $params );
+		$method_string = $def->build_url($path, $params);
 		
-		if ( is_wp_error($method_string) ){
+		if (is_wp_error($method_string)) {
 			return $method_string;	
 		}
 		
-		$url = trailingslashit( $this->baseurl ) . $method_string;
+		$url = trailingslashit($this->baseurl) . $method_string;
 		
-		if ( empty($http_method) && !empty($def->http_methods) ){
+		if (empty($http_method) && ! empty($def->http_methods)) {
 			$_methods = $def->http_methods;
-			$http_method = array_shift( $_methods );
+			$http_method = array_shift($_methods);
 		} else {
 			$http_method = 'GET';	
 		}
@@ -136,26 +136,26 @@ class WP_HTTP_API_Adapter {
 		$this->last_request['http_method'] = $http_method;
 		$this->last_request['url'] = $url;
 		
-		return $this->request->send_request( $url, $http_method );
+		return $this->request->send_request($url, $http_method);
 	}
 	
-	public function build_methods( array $methods ){
+	public function build_methods(array $methods) {
 		
-		foreach($methods as $method => $args){
+		foreach($methods as $method => $args) {
 			
-			$this->methods[ $method ] = new WP_HTTP_API_Method( $method );
+			$this->methods[ $method ] = new WP_HTTP_API_Method($method);
 			
-			if ( !empty($args['params']) ){
-				$this->methods[ $method ]->set_params( $args['params'] );	
+			if (! empty($args['params'])) {
+				$this->methods[ $method ]->set_params($args['params']);	
 			}
 			
-			if ( !isset($args['paths']) ){
+			if (! isset($args['paths'])) {
 				$args['paths'] = false;
 			}
 			
-			$this->methods[ $method ]->set_paths( $args['paths'] );
+			$this->methods[ $method ]->set_paths($args['paths']);
 			
-			if ( !isset($args['method']) ){
+			if (! isset($args['method'])) {
 				$args['method'] = 'GET';
 			}
 			
@@ -163,15 +163,15 @@ class WP_HTTP_API_Adapter {
 		}
 	}
 	
-	function get_last_request(){
-		return !empty($this->last_request) ? $this->last_request : null;	
+	function get_last_request() {
+		return empty($this->last_request) ? null : $this->last_request;	
 	}
 	
-	function __call( $func, $params ){
+	function __call($func, $params) {
 		
-		if ( isset($this->methods[ $func ]) ){
+		if (isset($this->methods[ $func ])) {
 			
-			return $this->call_method( $func, 
+			return $this->call_method($func, 
 				isset($params[0]) ? $params[0] : '', 
 				isset($params[1]) ? $params[1] : array(), 
 				isset($params[2]) ? $params[2] : null 
@@ -206,49 +206,49 @@ class WP_HTTP_API_Method {
 	// if true, $path must not be empty in build_url()
 	public $path_required = false; 
 	
-	function __construct( $name ){
+	function __construct($name){
 		$this->name = $name;	
 	}
 		
-	public function set_params( array $params ){
+	public function set_params(array $params) {
 		foreach($params as $param => $val){
-			$this->set_param( $param, $val );	
+			$this->set_param($param, $val);	
 		}	
 	}
 	
 	public function set_param( $var, $valtype ){
 		
-		if ( 0 === strpos($var, '*') ){
+		if (0 === strpos($var, '*')) {
 			$var = substr($var, 1);	
 			$this->params_required[] = $var;
 		}
 		
-		if ( 1 === $valtype || 0 === $valtype ) {
+		if (1 === $valtype || 0 === $valtype) {
 			$this->params[ $var ] = self::BOOL;
-		} elseif ( '' === $valtype ){
+		} else if ('' === $valtype) {
 			$this->params[ $var ] = self::STRING;
-		} elseif ( is_array($valtype) ){
+		} else if (is_array($valtype)) {
 			$this->params[ $var ] = self::ENUM;
 			$this->param_options[ $var ] = $valtype;
 		}
 	}
 	
-	public function set_paths( $arg ){
+	public function set_paths($arg) {
 		$this->paths = $arg;
-		if ( '*' === $arg ){
+		if ('*' === $arg) {
 			$this->path_required = true;	
 		}
 	}
 	
-	public function build_url( $path = '', $params = array() ){
+	public function build_url($path = '', $params = array()) {
 		
-		if ( empty($path) && $this->path_required ){
+		if (empty($path) && $this->path_required) {
 			return new WP_Error('missing_path', "Missing required method path for '$this->name'.");	
 		}
 		
-		if ( !empty($this->params_required) ){
-			foreach( $this->params_required as $required ){
-				if ( !isset( $params[ $required ] ) ){
+		if (! empty($this->params_required)) {
+			foreach( $this->params_required as $required ) {
+				if (! isset($params[ $required ])) {
 					return new WP_Error('missing_required_param', "Missing required parameter '$required' for method '$this->name'.");
 				}	
 			}
@@ -256,50 +256,50 @@ class WP_HTTP_API_Method {
 		
 		$return = $this->name;
 		
-		if ( !empty($path) && $this->paths ){
-			$return .= '/' . trim( $path, '/' );	
+		if (! empty($path) && $this->paths) {
+			$return .= '/' . trim($path, '/');	
 		}
 		
-		if ( !empty( $params ) ){
+		if (! empty($params)) {
 			$return .= '?';
-			foreach( $params as $param => $value ){
-				if ( ! $this->is_param_valid( $param, $value ) ){
+			foreach( $params as $param => $value ) {
+				if (! $this->is_param_valid($param, $value)) {
 					return new WP_Error('invalid_param', "Invalid parameter '$param' for method '$this->name'.");
 				}
-				$return .= urlencode( $param ) . '=' . urlencode( $value ) . '&';
+				$return .= urlencode($param) . '=' . urlencode($value) . '&';
 			}
 		}
 		
-		return rtrim( $return, '&' );
+		return rtrim($return, '&');
 	}
 	
-	public function is_param_valid( $param, $value ){
+	public function is_param_valid($param, $value) {
 		
-		if ( !isset($this->params[$param]) )
+		if (! isset($this->params[$param]))
 			return false;
 		
 		$p = $this->params[$param];
 		
-		if ( $this->isBool($p) ){
+		if ($this->isBool($p)) {
 			return 0 === $value || 1 === $value || '1' === $value || '0' === $value;	
-		} elseif ( $this->isString($p) ){
-			return is_string( $value );
-		} elseif ( $this->isEnum($p) ){
-			return in_array( $value, $this->param_options[$param] );	
+		} else if ($this->isString($p)){
+			return is_string($value);
+		} else if ($this->isEnum($p)) {
+			return in_array($value, $this->param_options[$param]);	
 		}
 		
 		return false;
 	}
 	
-	protected function isString( $val ){
+	protected function isString($val) {
 		return $val === self::STRING;	
 	}
 	
-	protected function isBool( $val ){
+	protected function isBool($val) {
 		return $val === self::BOOL;	
 	}
 	
-	protected function isEnum( $val ){
+	protected function isEnum($val) {
 		return $val === self::ENUM;	
 	}
 	
